@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Config 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.zlh.blogdemo.dao.mapper.ArticleMapper">
+
+<!--  数据库表中存储的是时间戳，需要用FROM_UNIXTIME(create_date/1000)  除以1000处理 -->
+    <select id="listArchives" resultType="com.zlh.blogdemo.dao.dos.Archives">
+        select year(FROM_UNIXTIME(create_date/1000)) as year,month(FROM_UNIXTIME(create_date/1000)) as month,count(*) as count from ms_article
+        group by year,month
+    </select>
+</mapper>
