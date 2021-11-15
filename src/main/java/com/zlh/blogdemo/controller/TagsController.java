@@ -22,6 +22,11 @@ public class TagsController {
     @Autowired
     private TagService tagService;
 
+    @GetMapping
+    public Result findAll(){
+        return tagService.findAll();
+    }
+
     @GetMapping("hot")
     public Result hot(){
         int limit=6;

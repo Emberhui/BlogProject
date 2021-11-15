@@ -6,22 +6,20 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.zlh.blogdemo.dao.dos.Archives;
 import com.zlh.blogdemo.dao.mapper.ArticleBodyMapper;
 import com.zlh.blogdemo.dao.mapper.ArticleMapper;
+import com.zlh.blogdemo.dao.mapper.ArticleTagMapper;
 import com.zlh.blogdemo.dao.mapper.CategoryMapper;
-import com.zlh.blogdemo.dao.pojo.Article;
-import com.zlh.blogdemo.dao.pojo.ArticleBody;
-import com.zlh.blogdemo.service.ArticleService;
-import com.zlh.blogdemo.service.CategoryService;
-import com.zlh.blogdemo.service.SysUserService;
-import com.zlh.blogdemo.service.TagService;
-import com.zlh.blogdemo.vo.ArticleBodyVo;
-import com.zlh.blogdemo.vo.ArticleVo;
-import com.zlh.blogdemo.vo.CategoryVo;
-import com.zlh.blogdemo.vo.Result;
+import com.zlh.blogdemo.dao.pojo.*;
+import com.zlh.blogdemo.service.*;
+import com.zlh.blogdemo.utils.UserThreadLocal;
+import com.zlh.blogdemo.vo.*;
+import com.zlh.blogdemo.vo.params.ArticleParam;
 import com.zlh.blogdemo.vo.params.PageParams;
 import org.joda.time.DateTime;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import sun.java2d.pipe.AAShapePipe;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -34,7 +32,9 @@ import java.util.List;
  * @Version 1.0
  */
 
+
 @Service
+@Transactional
 public class ArticleServiceImpl implements ArticleService {
 
     @Autowired
@@ -52,10 +52,64 @@ public class ArticleServiceImpl implements ArticleService {
     @Autowired
     private CategoryService categoryService;
 
+    @Autowired
+    private ThreadService threadService;
+
+    @Autowired
+    private ArticleTagMapper articleTagMapper;
+
+    @Override
+    public Result publish(ArticleParam articleParam) {
+//       获取登录的用户信息
+        SysUser sysUser = UserThreadLocal.get();
+//        设置发布文章信息，插入数据库中
+        Article article = new Article();
+        article.setAuthorId(sysUser.getId());
+        article.setCategoryId(articleParam.getCategory().getId());
+        article.setCreateDate(System.currentTimeMillis());
+        article.setCommentCounts(0);
+        article.setSummary(articleParam.getSummary());
+        article.setTitle(articleParam.getTitle());
+        article.setViewCounts(0);
+        article.setWeight(Article.Article_Common);
+        article.setBodyId(-1L);
+//        插入之后会生成文章id
+        articleMapper.insert(article);
+//      标签加入关联列表中
+        List<TagVo> tagList = articleParam.getTags();
+        if (tagList != null){
+            for (TagVo tag: tagList){
+                ArticleTag articleTag = new ArticleTag();
+                articleTag.setArticleId(article.getId());
+                articleTag.setTagId(tag.getId());
+                articleTagMapper.insert(articleTag);
+            }
+        }
+//      body信息内容存储
+        ArticleBody articleBody = new ArticleBody();
+        articleBody.setArticleId(article.getId());
+        articleBody.setContent(articleParam.getBody().getContent());
+        articleBody.setContentHtml(articleParam.getBody().getContentHtml());
+        articleBodyMapper.insert(articleBody);
+//      文章设置body id
+        article.setBodyId(articleBody.getId());
+//      更新
+        articleMapper.updateById(article);
+//      返回数据类型 {"id":12232323}
+        ArticleVo articleVo = new ArticleVo();
+        articleVo.setId(article.getId());
+        return Result.success(articleVo);
+    }
+
     @Override
     public ArticleVo findArticleById(Long id) {
         Article article = articleMapper.selectById(id);
+//        查看完文章后，做了更新操作，更新时加写锁，阻塞其他的读操作，性能会比较低
+//        更新 增加了此次接口的耗时  如果一旦更新出问题，不能影响查看文章的操作
+//        解决：将更新操作扔到线程池中去执行
+        threadService.updateArticleViewCount(articleMapper,article);
         return copy(article,true,true,true,true);
+
     }
 
     @Override

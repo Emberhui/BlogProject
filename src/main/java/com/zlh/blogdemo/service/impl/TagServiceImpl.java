@@ -1,6 +1,7 @@
 package com.zlh.blogdemo.service.impl;
 
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.zlh.blogdemo.dao.mapper.TagMapper;
 import com.zlh.blogdemo.dao.pojo.Tag;
 import com.zlh.blogdemo.service.TagService;
@@ -30,6 +31,10 @@ public class TagServiceImpl implements TagService {
     private TagMapper tagMapper;
 
 
+    @Override
+    public Result findAll() {
+        return Result.success(copyList(tagMapper.selectList(new LambdaQueryWrapper<>())));
+    }
 
     @Override
     public Result hots(int limit) {

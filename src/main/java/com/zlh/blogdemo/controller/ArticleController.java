@@ -1,8 +1,10 @@
 package com.zlh.blogdemo.controller;
 
+import com.zlh.blogdemo.common.aop.LogAnnotation;
 import com.zlh.blogdemo.service.ArticleService;
 import com.zlh.blogdemo.vo.ArticleVo;
 import com.zlh.blogdemo.vo.Result;
+import com.zlh.blogdemo.vo.params.ArticleParam;
 import com.zlh.blogdemo.vo.params.PageParams;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -29,7 +31,15 @@ public class ArticleController {
     *@Params PageParams
     *@Return Result
     */
+
+    @PostMapping("publish")
+    public Result publish(@RequestBody ArticleParam articleParam){
+        return articleService.publish(articleParam);
+    }
+
+
     @PostMapping
+    @LogAnnotation(module = "文章",operator = "获取文章列表")
     public Result listArticle(@RequestBody PageParams pageParams){
 
         return articleService.listArticle(pageParams);

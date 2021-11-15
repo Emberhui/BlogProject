@@ -3,14 +3,17 @@ package com.zlh.blogdemo.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.zlh.blogdemo.dao.mapper.SysUserMapper;
+import com.zlh.blogdemo.dao.pojo.Comment;
 import com.zlh.blogdemo.dao.pojo.SysUser;
 import com.zlh.blogdemo.service.LoginService;
 import com.zlh.blogdemo.service.SysUserService;
-import com.zlh.blogdemo.vo.ErrorCode;
-import com.zlh.blogdemo.vo.LoginUserVo;
-import com.zlh.blogdemo.vo.Result;
+import com.zlh.blogdemo.vo.*;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @ClassName SysUserServiceImpl
@@ -26,10 +29,23 @@ public class SysUserServiceImpl implements SysUserService {
     @Autowired
     private SysUserMapper sysUserMapper;
 
-
     @Autowired
     private LoginService loginService;
 
+
+    @Override
+    public UserVo findUserVoById(Long id) {
+        SysUser sysUser = sysUserMapper.selectById(id);
+        if (sysUser == null){
+            sysUser = new SysUser();
+            sysUser.setId(1L);
+            sysUser.setAvatar("img");
+            sysUser.setNickname("zlhzlh");
+        }
+        UserVo userVo = new UserVo();
+        BeanUtils.copyProperties(sysUser,userVo);
+        return userVo;
+    }
 
     @Override
     public void save(SysUser sysUserNew) {

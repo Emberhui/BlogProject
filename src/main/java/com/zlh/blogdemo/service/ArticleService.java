@@ -3,6 +3,7 @@ package com.zlh.blogdemo.service;
 
 import com.zlh.blogdemo.vo.ArticleVo;
 import com.zlh.blogdemo.vo.Result;
+import com.zlh.blogdemo.vo.params.ArticleParam;
 import com.zlh.blogdemo.vo.params.PageParams;
 
 public interface ArticleService {
@@ -21,4 +22,6 @@ public interface ArticleService {
     Result listArchives();
 
     ArticleVo findArticleById(Long id);
+
+    Result publish(ArticleParam articleParam);
 }

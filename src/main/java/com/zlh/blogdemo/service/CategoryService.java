@@ -1,6 +1,7 @@
 package com.zlh.blogdemo.service;
 
 import com.zlh.blogdemo.vo.CategoryVo;
+import com.zlh.blogdemo.vo.Result;
 
 
 /**
@@ -13,4 +14,6 @@ import com.zlh.blogdemo.vo.CategoryVo;
 public interface CategoryService {
 
     CategoryVo findCategoryById(Long categoryId);
+
+    Result findAll();
 }

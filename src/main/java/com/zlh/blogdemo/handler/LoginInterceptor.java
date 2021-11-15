@@ -3,6 +3,7 @@ package com.zlh.blogdemo.handler;
 import com.alibaba.fastjson.JSON;
 import com.zlh.blogdemo.dao.pojo.SysUser;
 import com.zlh.blogdemo.service.LoginService;
+import com.zlh.blogdemo.utils.UserThreadLocal;
 import com.zlh.blogdemo.vo.ErrorCode;
 import com.zlh.blogdemo.vo.Result;
 import org.apache.commons.lang3.StringUtils;
@@ -53,6 +54,14 @@ public class LoginInterceptor implements HandlerInterceptor {
             response.getWriter().print(JSON.toJSONString(result));
             return false;
         }
+        //登录验证成功，放行
+        //我希望在controller中 直接获取用户的信息 怎么获取?
+        UserThreadLocal.put(sysUser);
         return true;
+    }
+
+    @Override
+    public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex) throws Exception {
+        UserThreadLocal.remove();
     }
 }
