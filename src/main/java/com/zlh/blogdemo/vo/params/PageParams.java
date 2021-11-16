@@ -12,6 +12,24 @@ import lombok.Data;
 
 @Data
 public class PageParams {
-    private int page = 1;
-    private  int pageSize = 10;
+
+    private Integer page = 1;
+
+    private  Integer pageSize = 10;
+
+    private Long categoryId;
+
+    private Long tagId;
+
+    private String year;
+
+    private String month;
+
+//    获取月份时需要处理，月份为一位时需加上0，与sql语句相适配
+    public String getMonth(){
+        if (this.month != null && this.month.length() == 1){
+            return "0"+this.month;
+        }
+        return this.month;
+    }
 }

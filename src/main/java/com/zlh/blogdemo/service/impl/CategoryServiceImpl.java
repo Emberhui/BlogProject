@@ -28,8 +28,24 @@ public class CategoryServiceImpl implements CategoryService {
     private CategoryMapper categoryMapper;
 
     @Override
+    public Result findAllDetailById(Long id) {
+        Category category = categoryMapper.selectById(id);
+        return Result.success(copy(category));
+    }
+
+    @Override
+    public Result findAllDetail() {
+        LambdaQueryWrapper<Category> queryWrapper = new LambdaQueryWrapper<>();
+        List<Category> categories = categoryMapper.selectList(queryWrapper);
+        return Result.success(copyList(categories));
+    }
+
+    @Override
     public Result findAll() {
-        List<Category> categories = categoryMapper.selectList(new LambdaQueryWrapper<>());
+        LambdaQueryWrapper<Category> queryWrapper = new LambdaQueryWrapper<>();
+//        只查询id和name两个值
+        queryWrapper.select(Category::getId,Category::getCategoryName);
+        List<Category> categories = categoryMapper.selectList(queryWrapper);
         return Result.success(copyList(categories));
     }
 

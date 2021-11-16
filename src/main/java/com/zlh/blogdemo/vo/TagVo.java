@@ -18,4 +18,5 @@ public class TagVo {
     @JsonSerialize(using = ToStringSerializer.class)
     private Long id;
     private String tagName;
+    private String avatar;
 }
